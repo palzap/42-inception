@@ -22,7 +22,7 @@ RUN mkdir -p /etc/nginx/certs/ && \
 	openssl req -newkey rsa:4096 -x509 -sha256 -nodes \
     -out /etc/nginx/certs/certificate.crt \
     -keyout /etc/nginx/certs/certificate.key \
-    -subj "/C=PY/ST=PT/L=PORTO/O=42/OU=PORTO/CN=pealexan.42.fr"
+    -subj "/C=PT/ST=PT/L=PORTO/O=42/OU=PORTO/CN=pealexan.42.fr"
 
 # Copy nginx configuration file
 COPY ./conf/nginx.conf /etc/nginx/
