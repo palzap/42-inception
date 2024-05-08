@@ -1,0 +1,84 @@
+# ======================
+#  Containers    
+# ======================
+
+services:
+
+#  Mariadb
+  mariadb:
+    image: mariadb:42
+    container_name: mariadb
+    build: ./requirements/mariadb/
+    expose:
+      - "3306" # Expose port 3306 to other services
+    env_file: .env
+    volumes:
+      - mariadb_vlm:/var/lib/mysql/
+    networks:
+      - inception # Custom network
+    init: true
+    restart: on-failure
+
+#  Wordpress
+  wordpress:
+    image: wordpress:42
+    container_name: wordpress
+    build: ./requirements/wordpress/
+    expose:
+      - "9000" # Expose port 9000 to other services
+    env_file: .env
+    volumes:
+      - wordpress_vlm:/var/www/wordpress/
+    networks:
+      - inception # Custom network
+    init: true
+    restart: on-failure
+    depends_on:
+      - mariadb
+
+#  Nginx
+  nginx:
+    image: nginx:42
+    container_name: nginx
+    build: ./requirements/nginx/
+    ports:
+      - '443:443' # Standard port for https
+    env_file: .env  
+    volumes:
+      - wordpress_vlm:/var/www/wordpress/
+    networks:
+      - inception # Custom network
+    init: true
+    restart: on-failure
+    depends_on:
+      - wordpress
+
+# ======================
+#  Volumes    
+# ======================
+
+volumes:
+
+  # Stores the database
+  mariadb_vlm:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/mariadb
+
+  # Stores the wordpress files
+  wordpress_vlm:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/wordpress
+
+# ======================
+#  Networks    
+# ======================
+
+networks:
+  inception:
+    driver: bridge
